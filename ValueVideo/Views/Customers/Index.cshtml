@@ -1,0 +1,102 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index of Customers</h2>
+<a href="/customers/new/" class="btn btn-info btn-xs">New Customer</a>
+<table class="table table-striped table-hover" id="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Membership Type</th>
+                <th>Birthdate</th>
+                <th>Delete Customer</th>
+            </tr>
+        </thead>
+    <tbody></tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function() {
+
+            var table = $("#table").DataTable({
+                ajax:
+                {
+                    url: "/api/customers/",
+                    dataSrc: ""
+                },
+                columns:
+                [
+                    {
+                        data: "name",
+                        render: function(data, type, object) {
+                            return "<a href='/customers/new/" + object.id + "'>" + data + "</a>";
+                        }
+
+                    },
+                    {
+                        data: "membershipType",
+                        render: function(data, type, object) {
+                            return "<p>" + data.name + "</p>";
+                        }
+
+                    },
+                    {
+                        data: "birthdate",
+                        render: function(data, type, object) {
+                            return (moment(data).format("MMM Do YYYY"));;
+                        }
+
+                    },
+                    {
+                        data: "name",
+                        render: function(data, type, object) {
+                            return "<button js-data-id='" +
+                                object.id +
+                                "' class='btn btn-danger js-delete'>Remove</button>";
+                        }
+
+                    }
+                ]
+
+            });
+
+            $("#table").on("click",
+                ".js-delete",
+                function() {
+                    var $button = $(this);
+                    var $id = $button.attr("js-data-id");
+                    var $row = $button.parents("tr");
+
+                    bootbox.confirm("Are you sure you want to delete this customer from the database?",
+                                                   function (result) {
+                                                       if (result) {
+                                                           $.ajax({
+                                                                   url: '/api/customers/' + $id + '/',
+                                                                   method: "DELETE"
+                                                               })
+                                                               .done(table.row($row).remove().draw());
+
+
+                                                       }
+
+
+                   
+                       
+                           
+                                });
+                            
+                        });
+
+                });
+
+        
+    </script>
+}
+
+    
+
+

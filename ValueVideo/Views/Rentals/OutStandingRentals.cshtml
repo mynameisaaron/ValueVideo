@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "OutStandingRentals";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>OutStandingRentals</h2>
+
+<table id="table" class="table table-striped table-hover ">
+    <thead>
+    <tr>
+
+        <th>Movie Name</th>
+        <th>Customer</th>
+        <th>Date Checked-Out</th>
+        <th>Return Now</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function() {
+
+           var table= $('#table').DataTable({
+                ajax: {
+                    url: '/api/rentals',
+                    dataSrc: ''
+                },
+
+                columns: [
+                    {
+                        data: "id",
+                        render: function(data, type, object) {
+                            return object.movie.name;
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function(data, type, object) {
+                            return object.customer.name;
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function(data, type, object) {
+                            return (moment(object.checkOutDate).format("dddd MMMM Do YYYY, h:mm a"));
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function(data, type, object) {
+                            return "<button class='btn btn-default js-delete' data-rental-id='" +
+                                data +
+                                "'>Return</button>";
+                        }
+                    }
+                ]
+            });
+
+            $('#table').on('click',
+                '.js-delete',
+                function(e) {
+                    var $button = $(this);
+                    var $id = $button.attr('data-rental-id');
+                    var $row = $button.parents('tr');
+
+                    $.ajax({
+                            url: '/api/rentals/' + $id + '/',
+                            method: 'PUT'
+                        })
+                        .done(function() {
+                            toastr.success("Database Updated!");
+                            table.row($row).remove().draw();
+                        });
+
+
+                });
+        });
+    </script>
+}
